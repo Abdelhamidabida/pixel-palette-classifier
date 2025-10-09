@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import TeamCard from "@/components/TeamCard";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import heroBg from "@/assets/hero-bg.jpg";
+import heroBg from "@/assets/hero-bg-pink.jpg";
 import { ArrowRight, Brain, Image as ImageIcon, Sparkles } from "lucide-react";
 
 const Home = () => {
