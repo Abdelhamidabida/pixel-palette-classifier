@@ -1,8 +1,31 @@
-import { Link } from "react-router-dom";
-import logo from "@/assets/logo.png";
-import { Brain } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Brain, LogOut } from "lucide-react";
+import type { User } from "@supabase/supabase-js";
 
 const Navbar = () => {
+  const [user, setUser] = useState<User | null>(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate("/");
+  };
+
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-lg bg-background/80 border-b border-border">
       <div className="container mx-auto px-6 py-4">
@@ -29,6 +52,26 @@ const Navbar = () => {
             >
               Prédiction
             </Link>
+            
+            {user ? (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleLogout}
+                className="gap-2"
+              >
+                <LogOut className="w-4 h-4" />
+                Déconnexion
+              </Button>
+            ) : (
+              <Button
+                variant="hero"
+                size="sm"
+                onClick={() => navigate("/auth")}
+              >
+                Connexion
+              </Button>
+            )}
           </div>
         </div>
       </div>
