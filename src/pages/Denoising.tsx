@@ -52,7 +52,7 @@ const Denoising = () => {
       setDenoisedImage(originalImage); // Placeholder
       
       toast({
-        title: "Denoising réussi",
+        title: "Débruitage réussi",
         description: "L'image a été traitée avec succès",
       });
     } catch (error) {
@@ -86,7 +86,7 @@ const Denoising = () => {
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-12">
               <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent">
-                Denoising d'Image par IA
+                Débruitage d'Image par IA
               </h1>
               <p className="text-muted-foreground">
                 Améliorez la qualité de vos images en réduisant le bruit
@@ -142,7 +142,7 @@ const Denoising = () => {
                     ) : (
                       <>
                         <Wand2 className="w-4 h-4" />
-                        Appliquer le Denoising
+                        Appliquer le Débruitage
                       </>
                     )}
                   </Button>

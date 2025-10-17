@@ -70,12 +70,12 @@ const Home = () => {
               </Button>
               <Button 
                 size="xl" 
-                variant="outline"
+                variant="hero"
                 onClick={() => navigate("/denoising")}
                 className="group"
               >
                 <Wand2 className="w-5 h-5" />
-                Denoising d'image
+                Débruitage d'image
               </Button>
             </div>
           </div>

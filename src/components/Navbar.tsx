@@ -56,7 +56,7 @@ const Navbar = () => {
               to="/denoising" 
               className="text-muted-foreground hover:text-foreground transition-smooth"
             >
-              Denoising
+              Débruitage
             </Link>
             
             {user ? (
