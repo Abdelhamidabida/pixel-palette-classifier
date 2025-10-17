@@ -2,8 +2,9 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Brain, LogOut } from "lucide-react";
+import { LogOut } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
+import cesiLogo from "@/assets/cesi-logo.png";
 
 const Navbar = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -31,12 +32,11 @@ const Navbar = () => {
       <div className="container mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-lg gradient-primary flex items-center justify-center shadow-glow transition-smooth group-hover:scale-110">
-              <Brain className="w-6 h-6 text-primary-foreground" />
-            </div>
-            <span className="text-xl font-bold text-foreground">
-              ArtVision Classifier
-            </span>
+            <img 
+              src={cesiLogo} 
+              alt="CESI - ArtVision Classifier" 
+              className="h-10 md:h-12 object-contain transition-smooth group-hover:scale-105"
+            />
           </Link>
           
           <div className="flex items-center gap-6">
