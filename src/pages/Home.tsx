@@ -5,7 +5,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import heroBg from "@/assets/hero-bg-pink.jpg";
 import cesiLogo from "@/assets/cesi-logo.png";
-import { ArrowRight, Brain, Image as ImageIcon, Sparkles } from "lucide-react";
+import { ArrowRight, Brain, Image as ImageIcon, Sparkles, Wand2 } from "lucide-react";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -58,15 +58,26 @@ const Home = () => {
               <span className="text-primary font-semibold"> (Painting, Photo, Sketch, Text, Schematic)</span>.
             </p>
             
-            <Button 
-              size="xl" 
-              variant="hero"
-              onClick={() => navigate("/predict")}
-              className="group"
-            >
-              Commencer la prédiction
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button 
+                size="xl" 
+                variant="hero"
+                onClick={() => navigate("/predict")}
+                className="group"
+              >
+                Commencer la prédiction
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </Button>
+              <Button 
+                size="xl" 
+                variant="outline"
+                onClick={() => navigate("/denoising")}
+                className="group"
+              >
+                <Wand2 className="w-5 h-5" />
+                Denoising d'image
+              </Button>
+            </div>
           </div>
         </div>
       </section>
