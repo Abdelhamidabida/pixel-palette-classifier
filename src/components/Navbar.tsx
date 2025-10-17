@@ -52,6 +52,12 @@ const Navbar = () => {
             >
               Prédiction
             </Link>
+            <Link 
+              to="/denoising" 
+              className="text-muted-foreground hover:text-foreground transition-smooth"
+            >
+              Denoising
+            </Link>
             
             {user ? (
               <Button
