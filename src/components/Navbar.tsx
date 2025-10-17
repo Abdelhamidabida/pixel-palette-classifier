@@ -34,7 +34,7 @@ const Navbar = () => {
             <div className="w-10 h-10 rounded-lg gradient-primary flex items-center justify-center shadow-glow transition-smooth group-hover:scale-110">
               <Brain className="w-6 h-6 text-primary-foreground" />
             </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent">
+            <span className="text-xl font-bold text-foreground">
               ArtVision Classifier
             </span>
           </Link>
