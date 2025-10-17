@@ -4,6 +4,7 @@ import TeamCard from "@/components/TeamCard";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import heroBg from "@/assets/hero-bg-pink.jpg";
+import cesiLogo from "@/assets/cesi-logo.png";
 import { ArrowRight, Brain, Image as ImageIcon, Sparkles } from "lucide-react";
 
 const Home = () => {
@@ -42,6 +43,14 @@ const Home = () => {
             <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-secondary via-primary to-primary-glow bg-clip-text text-transparent">
               ArtVision Classifier
             </h1>
+            
+            <div className="flex justify-center mb-6">
+              <img 
+                src={cesiLogo} 
+                alt="CESI École d'Ingénieurs" 
+                className="h-16 md:h-20 object-contain"
+              />
+            </div>
             
             <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
               ArtVision est une application d'intelligence artificielle permettant de prédire 
