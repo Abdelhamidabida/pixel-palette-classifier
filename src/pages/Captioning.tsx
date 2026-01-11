@@ -1,36 +1,34 @@
 import { useNavigate } from "react-router-dom";
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import ResultCard from "@/components/ResultCard";
 import Footer from "@/components/Footer";
 import cesiLogo from "@/assets/cesi-logo.png";
-import { predictBinary, predictMulticlass, PredictionResponse } from "@/services/api";
+import { Upload, MessageSquareText, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { Upload, FileImage, Loader2 } from "lucide-react";
 
-const Predict = () => {
+const Captioning = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string>("");
-  const [result, setResult] = useState<PredictionResponse | null>(null);
+  const [previewImage, setPreviewImage] = useState<string>("");
+  const [caption, setCaption] = useState<string>("");
   const [loading, setLoading] = useState(false);
 
-  // 🔹 États pour la navbar
+  // 🔹 Navbar
   const [photoProfil, setPhotoProfil] = useState<string | null>(null);
-  const [userId, setUserId] = useState<number | null>(null);
   const [showMenu, setShowMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const [user, setUser] = useState<any>(null);
 
-  // 🔹 Récupération du user dans le localStorage
+  // 🔹 Récupération du user
   useEffect(() => {
     const userData = localStorage.getItem("user");
     if (userData) {
       try {
         const parsedUser = JSON.parse(userData);
-        setPhotoProfil(parsedUser.photo_profil || null);
-        setUserId(parsedUser.id || null);
+        setUser(parsedUser);
+        if (parsedUser.photo_profil) setPhotoProfil(parsedUser.photo_profil);
       } catch (error) {
         console.error("Erreur parsing user :", error);
       }
@@ -48,7 +46,6 @@ const Predict = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // 🔹 Déconnexion
   const handleLogout = () => {
     localStorage.removeItem("user");
     localStorage.removeItem("token");
@@ -56,76 +53,87 @@ const Predict = () => {
     window.location.reload();
   };
 
-  // 🔹 Gestion de l’upload
+  // 🔹 Upload image
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       setSelectedFile(file);
       const reader = new FileReader();
-      reader.onloadend = () => setImagePreview(reader.result as string);
+      reader.onloadend = () => setPreviewImage(reader.result as string);
       reader.readAsDataURL(file);
-      setResult(null);
+      setCaption("");
     }
   };
 
-  // 🔹 Prédiction
-  const handlePredict = async (type: "binary" | "multiclass") => {
-    if (!selectedFile) {
-      toast({
-        title: "Erreur",
-        description: "Veuillez sélectionner une image",
-        variant: "destructive",
-      });
-      return;
+  // 🔹 Simulation du captioning (plus tard : appel API FastAPI)
+  // 🔹 Génération réelle via FastAPI (BLIP)
+const handleGenerateCaption = async () => {
+  if (!selectedFile) {
+    toast({
+      title: "Erreur",
+      description: "Veuillez sélectionner une image avant de générer une légende.",
+      variant: "destructive",
+    });
+    return;
+  }
+
+  if (!user || !user.id) {
+    toast({
+      title: "Erreur",
+      description: "Utilisateur non connecté.",
+      variant: "destructive",
+    });
+    return;
+  }
+
+  setLoading(true);
+  try {
+    const formData = new FormData();
+    formData.append("id_user", user.id);
+    formData.append("file", selectedFile);
+    
+    const response = await fetch("http://127.0.0.1:8000/caption", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error(`Erreur serveur: ${response.status}`);
     }
 
-    if (!userId) {
-      toast({
-        title: "Non connecté",
-        description: "Veuillez vous connecter avant de faire une prédiction.",
-        variant: "destructive",
-      });
-      navigate("/auth");
-      return;
-    }
+    const data = await response.json();
+    console.log("🧠 Réponse API Caption:", data);
 
-    setLoading(true);
-    try {
-      const prediction =
-        type === "binary"
-          ? await predictBinary(selectedFile, userId)
-          : await predictMulticlass(selectedFile, userId);
-
-      setResult(prediction);
+    if (data.result) {
+      setCaption(data.result);
       toast({
-        title: "Prédiction réussie ✅",
-        description: `Classe prédite : ${prediction.prediction} (${(prediction.confidence * 100).toFixed(1)}%)`,
+        title: "Succès",
+        description: "Légende générée avec succès.",
       });
-    } catch (error) {
-      console.error(error);
-      toast({
-        title: "Erreur ❌",
-        description: "Impossible de contacter le serveur de prédiction.",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
+    } else {
+      throw new Error("Pas de résultat de légende trouvé.");
     }
-  };
+  } catch (error) {
+    console.error("Erreur lors du captioning :", error);
+    toast({
+      title: "Erreur",
+      description: "Impossible de générer la légende pour l’instant.",
+      variant: "destructive",
+    });
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <div className="min-h-screen flex flex-col">
       {/* ================= NAVBAR ================= */}
       <nav className="flex justify-between items-center px-6 py-4 bg-white shadow-md fixed w-full top-0 z-50">
-        {/* 🔹 Logo CESI */}
-        <div
-          className="flex items-center gap-3 cursor-pointer"
-          onClick={() => navigate("/")}
-        >
+        <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate("/")}>
           <img src={cesiLogo} alt="CESI" className="h-14 object-contain" />
         </div>
 
-        {/* 🔹 Liens / boutons du menu */}
         <div className="flex items-center gap-6 relative">
           <Button
             variant="outline"
@@ -134,7 +142,6 @@ const Predict = () => {
           >
             Prédiction
           </Button>
-
           <Button
             variant="outline"
             onClick={() => navigate("/denoising")}
@@ -142,7 +149,6 @@ const Predict = () => {
           >
             Débruitage
           </Button>
-
           <Button
             variant="outline"
             onClick={() => navigate("/captioning")}
@@ -183,43 +189,38 @@ const Predict = () => {
         </div>
       </nav>
 
-      {/* ================= CONTENU PRINCIPAL ================= */}
+      {/* ================= CONTENU ================= */}
       <main className="flex-1 pt-32 pb-20">
         <div className="container mx-auto px-6">
-          <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-12">
-              <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent">
-                Analyse d'image par IA
-              </h1>
-              <p className="text-muted-foreground">
-                Uploadez une image pour découvrir sa classification
-              </p>
-            </div>
+          <div className="max-w-6xl mx-auto text-center">
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent">
+              Captioning d'Image (Rédaction automatique)
+            </h1>
+            <p className="text-muted-foreground mb-12">
+              Téléversez une image et laissez l’IA rédiger une description en français.
+            </p>
 
             {/* Upload Section */}
             <div className="glass-card rounded-2xl p-8 shadow-elegant mb-8">
               <div className="flex flex-col items-center">
                 <label htmlFor="file-upload" className="w-full cursor-pointer group">
-                  <div className="border-2 border-dashed border-border rounded-xl p-12 text-center transition-smooth hover:border-primary/50 hover:bg-card/50">
-                    {imagePreview ? (
+                  <div className="border-2 border-dashed border-border rounded-xl p-12 text-center transition hover:border-primary/50 hover:bg-card/50">
+                    {previewImage ? (
                       <img
-                        src={imagePreview}
+                        src={previewImage}
                         alt="Preview"
                         className="max-h-64 mx-auto rounded-lg mb-4"
                       />
                     ) : (
-                      <Upload className="w-16 h-16 mx-auto mb-4 text-muted-foreground group-hover:text-primary transition-smooth" />
+                      <Upload className="w-16 h-16 mx-auto mb-4 text-muted-foreground group-hover:text-primary transition" />
                     )}
                     <p className="text-foreground font-medium mb-2">
-                      {imagePreview
-                        ? "Cliquez pour changer l'image"
-                        : "Cliquez pour uploader une image"}
+                      {previewImage ? "Cliquez pour changer l'image" : "Cliquez pour uploader une image"}
                     </p>
-                    <p className="text-sm text-muted-foreground">
-                      PNG, JPG, JPEG jusqu'à 10MB
-                    </p>
+                    <p className="text-sm text-muted-foreground">Formats acceptés : PNG, JPG, JPEG</p>
                   </div>
                 </label>
+
                 <input
                   id="file-upload"
                   type="file"
@@ -228,50 +229,50 @@ const Predict = () => {
                   className="hidden"
                 />
 
-                {selectedFile && (
-                  <div className="flex gap-4 mt-6 w-full justify-center flex-wrap">
-                    <Button
-                      onClick={() => handlePredict("binary")}
-                      disabled={loading}
-                      variant="hero"
-                      size="lg"
-                      className="flex-1 max-w-xs"
-                    >
-                      {loading ? (
+                {selectedFile && !caption && (
+                  <Button
+                    onClick={handleGenerateCaption}
+                    disabled={loading}
+                    variant="hero"
+                    size="lg"
+                    className="mt-6 min-w-[220px]"
+                  >
+                    {loading ? (
+                      <>
                         <Loader2 className="w-4 h-4 animate-spin" />
-                      ) : (
-                        <FileImage className="w-4 h-4" />
-                      )}
-                      Photo ou Non-photo
-                    </Button>
-
-                    <Button
-                      onClick={() => handlePredict("multiclass")}
-                      disabled={loading}
-                      variant="outline"
-                      size="lg"
-                      className="flex-1 max-w-xs"
-                    >
-                      {loading ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                      ) : (
-                        <FileImage className="w-4 h-4" />
-                      )}
-                      Identifier la catégorie
-                    </Button>
-                  </div>
+                        Génération en cours...
+                      </>
+                    ) : (
+                      <>
+                        <MessageSquareText className="w-4 h-4" />
+                        Générer la légende
+                      </>
+                    )}
+                  </Button>
                 )}
               </div>
             </div>
 
-            {/* Résultats */}
-            {result && imagePreview && (
-              <div className="animate-fade-in">
-                <ResultCard
-                  prediction={result.prediction}
-                  confidence={result.confidence}
-                  imageUrl={imagePreview}
-                />
+            {/* Résultat */}
+            {caption && (
+              <div className="glass-card rounded-2xl p-8 shadow-elegant animate-fade-in">
+                <h2 className="text-2xl font-bold mb-4">📝 Légende générée :</h2>
+                <p className="text-lg text-gray-800 italic max-w-3xl mx-auto">
+                  “{caption}”
+                </p>
+                <div className="mt-6">
+                  <Button
+                    onClick={() => {
+                      setSelectedFile(null);
+                      setPreviewImage("");
+                      setCaption("");
+                    }}
+                    variant="outline"
+                    size="lg"
+                  >
+                    Nouvelle image
+                  </Button>
+                </div>
               </div>
             )}
           </div>
@@ -283,4 +284,5 @@ const Predict = () => {
   );
 };
 
-export default Predict;
+export default Captioning;
+ 

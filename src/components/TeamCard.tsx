@@ -20,7 +20,7 @@ const TeamCard = ({ name, role, image }: TeamCardProps) => {
         <h3 className="text-lg font-semibold text-foreground mb-1">{name}</h3>
         <p className="text-sm text-muted-foreground">{role}</p>
       </div>
-    </div>
+    </div> 
   );
 };
 

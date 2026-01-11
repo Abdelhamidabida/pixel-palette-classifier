@@ -8,6 +8,8 @@ import Predict from "./pages/Predict";
 import Denoising from "./pages/Denoising";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
+import Profile from "./pages/Profile";
+import Captioning from "./pages/Captioning";
 
 const queryClient = new QueryClient();
 
@@ -22,6 +24,8 @@ const App = () => (
           <Route path="/predict" element={<Predict />} />
           <Route path="/denoising" element={<Denoising />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/Captioning" element={<Captioning />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
